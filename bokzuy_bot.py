@@ -174,6 +174,6 @@ if __name__ == '__main__':
 #        xmpp.process(block=True)
         
         xmpp.process(threaded=False)
-        print("Done")
+        print("Done!")
     else:
         print("Unable to connect.")
