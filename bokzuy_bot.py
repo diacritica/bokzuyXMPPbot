@@ -35,7 +35,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
     Based on the SleekXMPP bot.
     """
 
-    def __init__(self, jid, password,bokzuy_auth):
+    def __init__(self, jid, password, bokzuy_auth):
 
         sleekxmpp.ClientXMPP.__init__(self, jid, password)
         self.add_event_handler("session_start", self.start)
@@ -62,56 +62,60 @@ class EchoBot(sleekxmpp.ClientXMPP):
         """
         if msg['type'] in ('chat', 'normal'):
 
-            msgstr = "%(body)s" %msg
+            msgstr = "%(body)s" % msg
             if msgstr == "b":
                 result = self.get_badges()
                 resultdict = json.loads(result)
-                resultlist = ["%i - %s"%(badge["id"],badge["name"]) for badge in resultdict["badges"]]
+                resultlist = ["%i - %s" % (badge["id"], badge["name"]) for \
+                badge in resultdict["badges"]]
                 resultlist.sort()
                 resultstr = "\n".join(resultlist)
 
             elif msgstr == "f":
                 result = self.get_friends()
                 resultdict = json.loads(result)
-                resultlist = ["%i - %s"%(friend[u"id"],friend[u"name"]) for friend in resultdict[u"friends"]]
+                resultlist = ["%i - %s" % (friend[u"id"], friend[u"name"]) for\
+                friend in resultdict[u"friends"]]
                 resultlist.sort()
                 resultstr = "\n".join(resultlist)
 
             else:
                 try:
-                    if msgstr.count("@") == 3: 
-                        badgeid,userid,comment,group = msgstr.split("@")
+                    if msgstr.count("@") == 3:
+                        badgeid, userid, comment, group = msgstr.split("@")
                     else:
                         group = ""
-                        badgeid,userid,comment = msgstr.split("@")
-                    result = self.send_boky(int(badgeid),int(userid),comment,group)
-                    resultstr=json.loads(result)["msg"]
+                        badgeid, userid, comment = msgstr.split("@")
+                    result = self.send_boky(int(badgeid), int(userid), \
+                    comment, group)
+                    resultstr = json.loads(result)["msg"]
                 except:
                     resultstr = "This bot is away or you made a mistake"
 
-
             msg.reply(resultstr).send()
 
-
-    def send_boky(self,badgeid=1,userid=10, comment="API TEST THROUGH XMPP BOT :)",group="kaleidos"):
-
+    def send_boky(self, badgeid=1, userid=10, \
+    comment="API TEST THROUGH XMPP BOT :)", group="kaleidos"):
 
         params = {
-            'badgeId':badgeid,
-            'comment':comment,
-            'group':group,
+            'badgeId': badgeid,
+            'comment': comment,
+            'group': group,
         }
 
-        response = requests.post("https://api.bokzuy.com/%s/bokies"%(userid), data=params, auth=self.bokzuy_auth, verify=False)
+        response = requests.post("https://api.bokzuy.com/%s/bokies" % \
+        (userid), data=params, auth=self.bokzuy_auth, verify=False)
         return response.content
 
     def get_badges(self):
-        response = requests.get("https://api.bokzuy.com/badges",auth=self.bokzuy_auth, verify=False)
+        response = requests.get("https://api.bokzuy.com/badges",\
+        auth=self.bokzuy_auth, verify=False)
 
         return response.content
 
     def get_friends(self):
-        response = requests.get("https://api.bokzuy.com/me/friends",auth=self.bokzuy_auth, verify=False)
+        response = requests.get("https://api.bokzuy.com/me/friends",\
+        auth=self.bokzuy_auth, verify=False)
 
         return response.content
 
@@ -143,7 +147,6 @@ if __name__ == '__main__':
     optp.add_option("-w", "--bokpass", dest="bokzuy_password",
                     help="Bokzuy password to use")
 
-
     opts, args = optp.parse_args()
 
     # Setup logging.
@@ -163,17 +166,16 @@ if __name__ == '__main__':
     bokzuy_auth = (opts.bokzuy_username, opts.bokzuy_password)
 
     xmpp = EchoBot(opts.jid, opts.password, bokzuy_auth)
-    xmpp.register_plugin('xep_0030') # Service Discovery
-    xmpp.register_plugin('xep_0004') # Data Forms
-    xmpp.register_plugin('xep_0060') # PubSub
-    xmpp.register_plugin('xep_0199') # XMPP Ping
-
+    xmpp.register_plugin('xep_0030')  # Service Discovery
+    xmpp.register_plugin('xep_0004')  # Data Forms
+    xmpp.register_plugin('xep_0060')  # PubSub
+    xmpp.register_plugin('xep_0199')  # XMPP Ping
 
     if xmpp.connect(('talk.google.com', 5222)):
-        #     ...
-#        xmpp.process(block=True)
-        
+
+        #xmpp.process(block=True)
+
         xmpp.process(threaded=False)
-        print("Done")
+        print("Done!")
     else:
         print("Unable to connect.")
